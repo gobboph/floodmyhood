@@ -7,10 +7,13 @@ $("#address-form").on("submit", function(e) {
 
 
 var geocoder;
+var elevator;
 var map;
 
 function initialize() {
 	geocoder = new google.maps.Geocoder();
+    elevator = new google.maps.ElevationService();
+
 	var latlng = new google.maps.LatLng(-34.397, 150.644);
 	var mapOptions = {
 		zoom: 8,
@@ -29,6 +32,18 @@ function codeAddress(address) {
 				map: map,
 				position: results[0].geometry.location
 			});
+
+			// elevation request
+			var positionalRequest = {'locations':[results[0].geometry.location]};
+			elevator.getElevationForLocations(positionalRequest, function(results, status) {
+    			if (status == google.maps.ElevationStatus.OK) {
+    				if (results[0]) {
+    					$("#elevation").html(results[0].elevation+' meters');
+    				}
+    			} else {
+    				alert("Elevation service failed due to: " + status);
+    			}
+    		});
 		} else {
 			alert("Geocode was not successful for the following reason: " + status);
 		}
