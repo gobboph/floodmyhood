@@ -24,7 +24,7 @@ function initialize() {
 
 function codeAddress(address) {
 	var address = document.getElementById("address").value;
-	geocoder.geocode( { 'address': address}, function(results, status) {
+	geocoder.geocode( {'address': address}, function(results, status) {
 		if (status == google.maps.GeocoderStatus.OK) {
 			map.setCenter(results[0].geometry.location);
 			map.setZoom(12);
@@ -38,7 +38,9 @@ function codeAddress(address) {
 			elevator.getElevationForLocations(positionalRequest, function(results, status) {
     			if (status == google.maps.ElevationStatus.OK) {
     				if (results[0]) {
-    					$("#elevation").html(results[0].elevation+' meters');
+    					var elevation = results[0].elevation;
+    					$("#elevation").html(elevation+' meters');
+    					$("#years-left").html(yearsLeft(elevation));
     				}
     			} else {
     				alert("Elevation service failed due to: " + status);
@@ -49,3 +51,24 @@ function codeAddress(address) {
 		}
 	});
 }
+
+
+// ----------- Timer ----------------
+
+var seaRise = 0.0032; // meters per year
+
+function currentSeaLevel() {
+	var zeroSeaLevelDay = new Date(2014,0,1); // new year 2014
+	var today = new Date();
+	var differenceTime = (today - zeroSeaLevelDay)/1000/86400/365;
+	//console.log(differenceTime);
+	return differenceTime*seaRise;
+}
+
+function yearsLeft(elevation) {
+	var heightLeft = elevation-currentSeaLevel();
+	return heightLeft/seaRise;
+}
+
+
+
